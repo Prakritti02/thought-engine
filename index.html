@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Thought Engine</title>
+</head>
+
+<body style="font-family:sans-serif; text-align:center; margin-top:80px;">
+
+  <h1>Thought → Action</h1>
+
+  <p>Type a thought → explore → capture insight → decide next step</p>
+
+  <input id="thought" type="text" placeholder="What are you trying to figure out?" style="width:300px; padding:10px;" />
+  
+  <br><br>
+
+  <button onclick="explore()" style="padding:10px 20px;">Explore</button>
+
+  <p id="aiPrompt" style="margin-top:20px; font-style:italic;"></p>
+
+  <div id="links" style="margin-top:20px;"></div>
+
+  <br><br>
+
+  <h3>Insight</h3>
+  <textarea id="insight" placeholder="What did you understand?" style="width:300px; height:80px;"></textarea>
+
+  <h3>Next Step</h3>
+  <textarea id="nextStep" placeholder="What will you do next?" style="width:300px; height:80px;"></textarea>
+
+  <br><br>
+
+  <button onclick="saveEntry()">Save Thought</button>
+
+  <h3>Saved Thoughts</h3>
+  <div id="history"></div>
+
+  <script>
+    function saveEntry() {
+      let thought = document.getElementById("thought").value;
+      let insight = document.getElementById("insight").value;
+      let nextStep = document.getElementById("nextStep").value;
+
+      if (!thought.trim()) {
+        alert("Please enter a thought");
+        return;
+      }
+
+      let newEntry = { thought, insight, nextStep };
+
+      let data = JSON.parse(localStorage.getItem("thoughts")) || [];
+
+      data.push(newEntry);
+
+      localStorage.setItem("thoughts", JSON.stringify(data));
+
+      renderHistory();
+
+      // clear inputs AFTER saving
+      document.getElementById("thought").value = "";
+      document.getElementById("insight").value = "";
+      document.getElementById("nextStep").value = "";
+    }
+
+    function renderHistory() {
+      let data = JSON.parse(localStorage.getItem("thoughts")) || [];
+
+      let html = "";
+
+      data.forEach((item) => {
+        html += `
+          <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+            <strong>Thought:</strong> ${item.thought} <br>
+            <strong>Insight:</strong> ${item.insight} <br>
+            <strong>Next Step:</strong> ${item.nextStep}
+          </div>
+        `;
+      });
+
+      document.getElementById("history").innerHTML = html;
+    }
+
+    function explore() {
+      let input = document.getElementById("thought").value;
+      let query = input.split(" ").join("+");
+
+      document.getElementById("aiPrompt").innerText =
+        "Explain this clearly: " + input +
+        ". Give: steps, mistakes, example.";
+
+      document.getElementById("links").innerHTML = `
+        <h3>Explore</h3>
+        <a href="https://www.google.com/search?q=${query}" target="_blank">🔍 Google</a><br><br>
+        <a href="https://www.youtube.com/results?search_query=${query}" target="_blank">🎥 YouTube</a><br><br>
+        <a href="https://www.reddit.com/search/?q=${query}" target="_blank">💬 Reddit</a><br><br>
+        <a href="https://github.com/search?q=${query}" target="_blank">💻 GitHub</a><br><br>
+        <a href="https://scholar.google.com/scholar?q=${query}" target="_blank">📚 Research</a>
+      `;
+    }
+
+    window.onload = function () {
+      renderHistory();
+    };
+  </script>
+
+</body>
+</html>
